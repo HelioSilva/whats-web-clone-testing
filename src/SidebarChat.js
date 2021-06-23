@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./SidebarChat.css";
 import { Avatar } from "@material-ui/core";
 
@@ -20,13 +20,19 @@ function SidebarChat({ addNewChat, dados }) {
       <Avatar
         src={
           dados
-            ? dados.img
+            ? dados.chat.contact.profilePicThumbObj.eurl
             : `https://avatars.dicebear.com/4.5/api/avataaars/${Math.random()}.svg`
         }
       />
       <div className="sidebarChat__info">
-        <h2>{`${dados ? dados.name : ""}`}</h2>
-        <p>Ultima mensagem</p>
+        <h2>{`${dados ? dados.chat.contact.formattedName : ""}`}</h2>
+        <p>
+          {dados
+            ? dados.messages[dados.messages.length - 1].type == "chat"
+              ? dados.messages[dados.messages.length - 1].body
+              : "Imagem"
+            : "----"}
+        </p>
       </div>
     </div>
   );
