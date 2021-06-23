@@ -10,6 +10,28 @@ const ContextApp = ({ children }) => {
       mensagem: message,
       numbers: [number],
     });
+    await refreshChats();
+  };
+
+  const refreshChats = async () => {
+    const call = api;
+    console.log("requisicao");
+    const conversa = await call.get("/whats/allmessages", {});
+    const resultadoAPI = conversa.data.body;
+
+    let { selectChat } = data;
+    // if (selectChat.contact == undefined) {
+    selectChat.contact = resultadoAPI[0].chat.contact;
+    selectChat.messages = resultadoAPI[0].messages;
+    // }else{
+
+    // }
+
+    setData({
+      chats: resultadoAPI,
+      selectChat,
+      sendMessage: sendMessage,
+    });
   };
 
   const [data, setData] = useState({

@@ -89,7 +89,7 @@ function Chat() {
               onSubmit={async (event) => {
                 event.preventDefault();
 
-                await sendMessage("558296130940", inputMessage);
+                await sendMessage(selectChat.contact.id.user, inputMessage);
                 setInputMessage("");
               }}
             >
