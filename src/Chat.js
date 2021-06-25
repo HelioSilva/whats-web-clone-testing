@@ -15,22 +15,25 @@ function Chat() {
   const [inputMessage, setInputMessage] = useState("");
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    console.log("SCroooooool");
+    if (messagesEndRef && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [selectChat.messages]);
+  }, [selectChat]);
 
   function viewMessage(value) {
     if (value.type == "chat") {
       if (value.fromMe == false) {
         //Fala de terceiros
         return (
-          <p key={value.id} className="chat__message">
+          <p key={value.t} className="chat__message">
             <p className="chat__name">{value.sender.name}</p>
             {value.body}
-            <p className="chat__timestamp">15:27</p>
+            <p className="chat__timestamp">{new Date().getTime() / 1000}</p>
           </p>
         );
       } else {
@@ -41,10 +44,6 @@ function Chat() {
           </p>
         );
       }
-    }
-
-    if (messagesEndRef) {
-      scrollToBottom(messagesEndRef);
     }
   }
 
@@ -78,7 +77,9 @@ function Chat() {
           </div>
 
           <div className="chat__body">
-            {selectChat.messages.map(viewMessage)}
+            {selectChat.messages.map((elem) => {
+              return viewMessage(elem);
+            })}
             <div ref={messagesEndRef} />
           </div>
 
@@ -88,9 +89,9 @@ function Chat() {
             <form
               onSubmit={async (event) => {
                 event.preventDefault();
-
-                await sendMessage(selectChat.contact.id.user, inputMessage);
+                sendMessage(selectChat.contact.id.user, inputMessage);
                 setInputMessage("");
+                scrollToBottom();
               }}
             >
               <input

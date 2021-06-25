@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../services/api";
 
+import { io } from "socket.io-client";
+
 const AppContext = createContext();
 
 const ContextApp = ({ children }) => {
@@ -44,6 +46,29 @@ const ContextApp = ({ children }) => {
   });
 
   useEffect(() => {
+    const socket = io("http://localhost:3333", {
+      cors: {
+        origin: "*",
+      },
+    });
+
+    socket.on("message", (value) => {
+      const message = JSON.parse(value);
+
+      const { selectChat, sendMessage } = data;
+      if ((selectChat.contact._serialized = message.chatId)) {
+        selectChat.messages.push(message);
+      }
+
+      setData({
+        chats: data.chats,
+        selectChat,
+        sendMessage,
+      });
+
+      //refreshChats();
+      //alert("nova mensagem");
+    });
     (async () => {
       const call = api;
       console.log("requisicao");
