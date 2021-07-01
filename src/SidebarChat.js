@@ -20,19 +20,13 @@ function SidebarChat({ addNewChat, dados }) {
       <Avatar
         src={
           dados
-            ? dados.chat.contact.profilePicThumbObj.eurl
+            ? dados.img
             : `https://avatars.dicebear.com/4.5/api/avataaars/${Math.random()}.svg`
         }
       />
       <div className="sidebarChat__info">
-        <h2>{`${dados ? dados.chat.contact.formattedName : ""}`}</h2>
-        <p>
-          {dados
-            ? dados.messages[dados.messages.length - 1].type == "chat"
-              ? dados.messages[dados.messages.length - 1].body
-              : "Imagem"
-            : "----"}
-        </p>
+        <h2>{`${dados ? dados.name : ""}`}</h2>
+        <p>{dados.ultimaMensagem}</p>
       </div>
     </div>
   );

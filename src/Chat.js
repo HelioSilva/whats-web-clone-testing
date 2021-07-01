@@ -11,11 +11,11 @@ import { useApp } from "./context/application";
 
 function Chat() {
   const messagesEndRef = useRef();
-  const { selectChat, sendMessage } = useApp();
+  const variavel = useApp();
+  const { data } = variavel();
   const [inputMessage, setInputMessage] = useState("");
 
   const scrollToBottom = () => {
-    console.log("SCroooooool");
     if (messagesEndRef && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -23,24 +23,28 @@ function Chat() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [selectChat]);
+  }, [data.chat]);
 
-  function viewMessage(value) {
+  function viewMessage(value, senderName) {
     if (value.type == "chat") {
-      if (value.fromMe == false) {
+      if (value.id.fromMe == false) {
         //Fala de terceiros
         return (
-          <p key={value.t} className="chat__message">
-            <p className="chat__name">{value.sender.name}</p>
+          <p key={value.id.id} className="chat__message">
+            <p className="chat__name">{senderName}</p>
             {value.body}
-            <p className="chat__timestamp">{new Date().getTime() / 1000}</p>
+            <p className="chat__timestamp">
+              {new Date(Number(value.t * 1000)).toLocaleTimeString()}
+            </p>
           </p>
         );
       } else {
         return (
-          <p key={value.id} className="chat__message chat__reciever">
+          <p key={value.id.id} className="chat__message chat__reciever">
             {value.body}
-            <p className="chat__timestamp">15:27</p>
+            <p className="chat__timestamp">
+              {new Date(Number(value.t * 1000)).toLocaleTimeString()}
+            </p>
           </p>
         );
       }
@@ -49,20 +53,20 @@ function Chat() {
 
   return (
     <div className="chat">
-      {selectChat.contact == undefined ? (
+      {data.chat == undefined ? (
         <div></div>
       ) : (
         <>
           <div className="chat__header">
             <Avatar
               src={
-                selectChat
-                  ? selectChat.contact.profilePicThumbObj.eurl
+                data.chat
+                  ? data.chat.img
                   : `https://avatars.dicebear.com/4.5/api/avataaars/${Math.random()}.svg`
               }
             />
             <div className="chat__headerInfo">
-              <h3>{selectChat.contact.name}</h3>
+              <h3>{data.chat.name}</h3>
               <p>Visto à 2 semanas</p>
             </div>
 
@@ -77,9 +81,10 @@ function Chat() {
           </div>
 
           <div className="chat__body">
-            {selectChat.messages.map((elem) => {
-              return viewMessage(elem);
-            })}
+            {data.chat.mensagens &&
+              data.chat.mensagens.map((elem) => {
+                return viewMessage(elem, data.chat.name);
+              })}
             <div ref={messagesEndRef} />
           </div>
 
@@ -89,7 +94,7 @@ function Chat() {
             <form
               onSubmit={async (event) => {
                 event.preventDefault();
-                sendMessage(selectChat.contact.id.user, inputMessage);
+                sendMessage(data.chat.idContact, inputMessage);
                 setInputMessage("");
                 scrollToBottom();
               }}

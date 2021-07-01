@@ -10,11 +10,14 @@ import SidebarChat from "./SidebarChat";
 import { useApp } from "./context/application";
 
 function viewSidebars(value) {
-  return <SidebarChat key={value.chat.id._serialized} dados={value} />;
+  return <SidebarChat key={value.idContact} dados={value} />;
 }
 
 function Sidebar() {
-  const { chats } = useApp();
+  const variavel = useApp();
+  console.log("seidebarrr");
+  console.log(variavel());
+  const { data } = variavel();
 
   return (
     <div className="sidebar">
@@ -45,7 +48,7 @@ function Sidebar() {
       </div>
       <div className="sidebar__chats">
         {/* <SidebarChat addNewChat={true} /> */}
-        {chats.map(viewSidebars)}
+        {data.chats && data.chats.map(viewSidebars)}
       </div>
     </div>
   );
