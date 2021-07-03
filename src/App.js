@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import Sidebar from "./Sidebar";
 import Chat from "./Chat";
@@ -7,25 +7,21 @@ import { useSocket, useApp } from "./context/application";
 
 function App() {
   const socket = useSocket();
-  const dadosCompartilhados = useApp();
-  const { data, setData } = dadosCompartilhados();
+  const { data, setData } = useApp();
 
-  const cargaInicial = useCallback(async () => {
+  const cargaInicial = async () => {
     console.log("inicializando");
     const call = api;
     const conversa = await call.get("/whats/allchats", {});
     const resultadoAPI = conversa.data.body;
 
-    const newChat = resultadoAPI[0];
-    console.log(`newChats = ${newChat.mensagens.length}`);
-    console.log(
-      `Quantidade de mensagens ${data.chat.mensagens.length} / Antes`
-    );
+    const newChat = resultadoAPI[1];
+
     const testeDenovo = {
-      idContact: "558296130940@c.us",
-      name: "Helio Silva",
-      img: "https://pps.whatsapp.net/v/t61.24694-24/160689431_310115640653737_5855194428273899085_n.jpg?ccb=11-4&oh=5f4f0bd528295302f7c9c82264aefa4d&oe=60DFE748",
-      pendingMsgs: false,
+      idContact: newChat.idContact,
+      name: newChat.name,
+      img: newChat.img,
+      pendingMsgs: newChat.pendingMsgs,
       mensagens: [...newChat.mensagens],
     };
 
@@ -34,53 +30,62 @@ function App() {
       chat: { ...testeDenovo },
       chats: [...resultadoAPI],
     }));
-
-    console.log(
-      `Quantidade de mensagens ${data.chat.mensagens.length} / Depois`
-    );
-  }, []);
-
-  const alteraData = (message) => {
-    // const { data, setData } = providerValue();
-    console.log("add");
-
-    console.log("Antes do setData");
-    console.log(data.chat.mensagens.length);
-
-    //data.chat.mensagens.push(message);
-
-    const { mensagens, ...others } = data.chat;
-    // mensagens.push(message);
-
-    setData((prevState) => ({
-      ...prevState,
-      chat: {
-        ...others,
-        mensagens: [...prevState.chat.mensagens, message],
-      },
-    }));
-
-    console.log("Depois do setData");
-    console.log(data.chat.mensagens.length);
   };
+
+  const alteraData = async (message) => {
+    const { chat } = data;
+    const { mensagens, ...others } = data.chat;
+    let novoArray = [...data.chats];
+
+    const messageForChatSelection = chat.idContact == message.from;
+
+    const running = novoArray.map((element) => {
+      if (element.idContact == message.from) {
+        element.ultimaMensagem = message.body;
+        element.unreadCount += 1;
+      }
+    });
+
+    await Promise.all(running);
+
+    if (messageForChatSelection) {
+      setData((prevState) => ({
+        ...prevState,
+        chats: novoArray,
+        chat: {
+          ...others,
+          mensagens: [...prevState.chat.mensagens, message],
+        },
+      }));
+    } else {
+      setData((prevState) => ({
+        ...prevState,
+        chats: novoArray,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    socket.on("message", (value) => {
+      console.log("nova mensagem via socket");
+      const message = JSON.parse(value);
+      alteraData(message);
+    });
+
+    return () => {
+      socket.off("message");
+    };
+  });
 
   useEffect(() => {
     cargaInicial();
   }, []);
 
   useEffect(() => {
-    socket.on("message", (value) => {
-      const message = JSON.parse(value);
-
-      alteraData(message);
-
-      // if ((chat.idContact = message.chatId)) {
-      //   if (chat.mensagens) {
-      //     chat.mensagens.push(message);
-      //   }
-      // }
-    });
-  }, [socket]);
+    // console.log(`Count(${count})`);
+    // console.log(`Conversas ativas = ${data.chats.length}`);
+    // console.log(data.chat);
+  });
 
   return (
     // BEM naming convention

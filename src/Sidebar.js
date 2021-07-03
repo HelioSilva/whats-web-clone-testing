@@ -14,10 +14,7 @@ function viewSidebars(value) {
 }
 
 function Sidebar() {
-  const variavel = useApp();
-  console.log("seidebarrr");
-  console.log(variavel());
-  const { data } = variavel();
+  const { data } = useApp();
 
   return (
     <div className="sidebar">

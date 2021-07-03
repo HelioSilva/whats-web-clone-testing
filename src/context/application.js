@@ -1,6 +1,13 @@
-import { createContext, useContext, useState, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 
 import { socket, SocketContext } from "./socket";
+import api from "../services/api";
 
 const AppContext = createContext();
 
@@ -13,7 +20,8 @@ const ContextApp = (props) => {
       mensagem: message,
       numbers: [formatNumber[0]],
     });
-    // await refreshChats();
+
+    //emitMessage(message);
   };
 
   const initialData = {
@@ -30,13 +38,33 @@ const ContextApp = (props) => {
           _serialized:
             "false_558296130940@c.us_F97FCEF52903E4153A86BACD3AE5B2CD",
         },
+        body: "Hhh",
+        type: "chat",
+        t: 1625154846,
+        notifyName: "",
+        from: "558296130940@c.us",
+        to: "558288551654@c.us",
+        self: "in",
+        ack: 0,
+        invis: true,
+        star: false,
+        isFromTemplate: false,
+        broadcast: false,
+        mentionedJidList: [],
+        isVcardOverMmsDocument: false,
+        isForwarded: false,
+        labels: [],
+        ephemeralOutOfSync: false,
+        productHeaderImageRejected: false,
+        isDynamicReplyButtonsMsg: false,
+        isMdHistoryMsg: false,
       },
     ],
   };
 
   const [data, setData] = useState({
-    chats: [initialData],
-    chat: initialData,
+    chats: [],
+    chat: {},
     sendMessage: sendMessage,
   });
 
@@ -45,8 +73,30 @@ const ContextApp = (props) => {
     [data, setData]
   );
 
+  const emitMessage = useCallback(
+    (message) => {
+      const { mensagens, ...others } = data.chat;
+      const newMessage = {
+        id: "52546568656",
+        fromMe: true,
+        body: message,
+        t: new Date().getTime() / 1000,
+        type: "chat",
+      };
+
+      setData((prevState) => ({
+        ...prevState,
+        chat: {
+          ...others,
+          mensagens: [...prevState.chat.mensagens, newMessage],
+        },
+      }));
+    },
+    [data, setData]
+  );
+
   return (
-    <AppContext.Provider value={providerValue}>
+    <AppContext.Provider value={{ data, setData }}>
       <SocketContext.Provider value={socket}>
         {props.children}
       </SocketContext.Provider>

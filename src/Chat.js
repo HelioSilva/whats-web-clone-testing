@@ -11,8 +11,8 @@ import { useApp } from "./context/application";
 
 function Chat() {
   const messagesEndRef = useRef();
-  const variavel = useApp();
-  const { data } = variavel();
+
+  const { data } = useApp();
   const [inputMessage, setInputMessage] = useState("");
 
   const scrollToBottom = () => {
@@ -27,23 +27,37 @@ function Chat() {
 
   function viewMessage(value, senderName) {
     if (value.type == "chat") {
-      if (value.id.fromMe == false) {
+      if (value.id.fromMe == false || value.fromMe == false) {
         //Fala de terceiros
         return (
-          <p key={value.id.id} className="chat__message">
+          <p
+            key={value.id.id ? value.id.id : value.id}
+            className="chat__message"
+          >
             <p className="chat__name">{senderName}</p>
             {value.body}
             <p className="chat__timestamp">
-              {new Date(Number(value.t * 1000)).toLocaleTimeString()}
+              {new Date(Number(value.t * 1000)).toLocaleTimeString("pt-BR", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: false,
+              })}
             </p>
           </p>
         );
       } else {
         return (
-          <p key={value.id.id} className="chat__message chat__reciever">
+          <p
+            key={value.id.id ? value.id.id : value.id}
+            className="chat__message chat__reciever"
+          >
             {value.body}
             <p className="chat__timestamp">
-              {new Date(Number(value.t * 1000)).toLocaleTimeString()}
+              {new Date(Number(value.t * 1000)).toLocaleTimeString("pt-BR", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: false,
+              })}
             </p>
           </p>
         );
@@ -94,9 +108,9 @@ function Chat() {
             <form
               onSubmit={async (event) => {
                 event.preventDefault();
-                sendMessage(data.chat.idContact, inputMessage);
+                data.sendMessage(data.chat.idContact, inputMessage);
                 setInputMessage("");
-                scrollToBottom();
+                // scrollToBottom();
               }}
             >
               <input
