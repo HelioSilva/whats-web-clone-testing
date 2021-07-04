@@ -9,6 +9,10 @@
   background-color: #f6f6f6;
 }
 
+.sidebarChatActive {
+  background-color: #f3f3f3;
+}
+
 .sidebarChat__info > h2 {
   font-size: 16px;
   margin-bottom: 8px;

@@ -1,23 +1,25 @@
 import React from "react";
 import "./SidebarChat.css";
 import { Avatar } from "@material-ui/core";
+import { useApp, useFunc } from "./context/application";
 
-function SidebarChat({ addNewChat, dados }) {
-  const createChat = () => {
-    const roomName = prompt("Insira um nome para o novo chat 😀");
+function SidebarChat({ dados }) {
+  const context = useApp();
 
-    if (roomName) {
-      //fazer uma coisa sapeca
-    }
-  };
-
-  return addNewChat ? (
-    <div onClick={createChat} className="sidebarChat">
-      <h2>Adicionar novo chat</h2>
-    </div>
-  ) : (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
-      <div className="sidebarChat">
+  const { alterChatActive } = useFunc();
+  return (
+    <div
+      className={
+        dados.idContact == context.data.chat.idContact
+          ? "sidebarChat sidebarChatActive"
+          : "sidebarChat"
+      }
+      style={{ flex: 1 }}
+      onClick={() => {
+        alterChatActive(dados.idContact);
+      }}
+    >
+      <div style={{ flexGrow: 4, display: "flex" }}>
         <Avatar
           src={
             dados
@@ -30,12 +32,15 @@ function SidebarChat({ addNewChat, dados }) {
           <p>{dados.ultimaMensagem}</p>
         </div>
       </div>
+
       <div
         style={{
-          width: "50px",
-          // display: "flex",
-          // alignItems: "center",
-          // justifyContent: "center",
+          // flexGrow: 1,
+          flexBasis: "30px",
+          // width: "50px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           padding: "10px",
         }}
       >

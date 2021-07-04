@@ -10,6 +10,57 @@ import { socket, SocketContext } from "./socket";
 import api from "../services/api";
 
 const AppContext = createContext();
+const FunContext = createContext();
+
+const ContextFun = (props) => {
+  const { data, setData } = useApp();
+
+  const alterChatActive = useCallback(
+    async (idContact = "") => {
+      let contact = {};
+
+      const running = data.chats.map(async (chat) => {
+        if (chat.idContact == idContact) {
+          const refreshMessages = await api.get(`/whats/messages/${idContact}`);
+          await api.post(`/whats/sendseen/${idContact}`);
+          contact = chat;
+          if (refreshMessages.status === 200) {
+            contact.mensagens = refreshMessages.data.body;
+            contact.unreadCount = 0;
+          }
+        }
+      });
+
+      await Promise.all(running);
+
+      if (contact != {}) {
+        setData((prevState) => ({
+          ...prevState,
+          chat: contact,
+        }));
+      }
+    },
+    [data]
+  );
+
+  return (
+    <FunContext.Provider value={{ alterChatActive }}>
+      {props.children}
+    </FunContext.Provider>
+  );
+};
+
+function useFunc() {
+  const context = useContext(FunContext);
+
+  if (!context) {
+    throw new Error(
+      "useApp só pode ser usado com o ContextApp por volta dos componentes"
+    );
+  }
+
+  return context;
+}
 
 const ContextApp = (props) => {
   const sendMessage = async (number, message) => {
@@ -20,8 +71,6 @@ const ContextApp = (props) => {
       mensagem: message,
       numbers: [formatNumber[0]],
     });
-
-    //emitMessage(message);
   };
 
   const initialData = {
@@ -68,37 +117,37 @@ const ContextApp = (props) => {
     sendMessage: sendMessage,
   });
 
-  const providerValue = useMemo(
-    () => () => ({ data, setData }),
-    [data, setData]
-  );
+  // const providerValue = useMemo(
+  //   () => () => ({ data, setData }),
+  //   [data, setData]
+  // );
 
-  const emitMessage = useCallback(
-    (message) => {
-      const { mensagens, ...others } = data.chat;
-      const newMessage = {
-        id: "52546568656",
-        fromMe: true,
-        body: message,
-        t: new Date().getTime() / 1000,
-        type: "chat",
-      };
+  // const emitMessage = useCallback(
+  //   (message) => {
+  //     const { mensagens, ...others } = data.chat;
+  //     const newMessage = {
+  //       id: "52546568656",
+  //       fromMe: true,
+  //       body: message,
+  //       t: new Date().getTime() / 1000,
+  //       type: "chat",
+  //     };
 
-      setData((prevState) => ({
-        ...prevState,
-        chat: {
-          ...others,
-          mensagens: [...prevState.chat.mensagens, newMessage],
-        },
-      }));
-    },
-    [data, setData]
-  );
+  //     setData((prevState) => ({
+  //       ...prevState,
+  //       chat: {
+  //         ...others,
+  //         mensagens: [...prevState.chat.mensagens, newMessage],
+  //       },
+  //     }));
+  //   },
+  //   [data, setData]
+  // );
 
   return (
     <AppContext.Provider value={{ data, setData }}>
       <SocketContext.Provider value={socket}>
-        {props.children}
+        <ContextFun>{props.children}</ContextFun>
       </SocketContext.Provider>
     </AppContext.Provider>
   );
@@ -128,4 +177,4 @@ function useSocket() {
   return context;
 }
 
-export { ContextApp, AppContext, useApp, useSocket };
+export { ContextApp, AppContext, useApp, useSocket, useFunc };
