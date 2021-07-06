@@ -81,12 +81,6 @@ function App() {
     cargaInicial();
   }, []);
 
-  useEffect(() => {
-    // console.log(`Count(${count})`);
-    // console.log(`Conversas ativas = ${data.chats.length}`);
-    // console.log(data.chat);
-  });
-
   return (
     // BEM naming convention
     <div className="app">

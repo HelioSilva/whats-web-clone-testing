@@ -26,11 +26,29 @@ function Chat() {
   }, [data.chat]);
 
   function viewMessage(value, senderName) {
+    if (value.type == "image") {
+      return (
+        <div key={value.id.id ? value.id.id : value.id} className="chat__image">
+          <img
+            className={"img"}
+            loading={"lazy"}
+            src={`data:image/jpeg;base64,${value.body}`}
+          />
+          <p className="chat__timestamp">
+            {new Date(Number(value.t * 1000)).toLocaleTimeString("pt-BR", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: false,
+            })}
+          </p>
+        </div>
+      );
+    }
     if (value.type == "chat") {
-      if (value.id.fromMe == false || value.fromMe == false) {
+      if ((value.id && value.id.fromMe == false) || value.fromMe == false) {
         //Fala de terceiros
         return (
-          <p
+          <div
             key={value.id.id ? value.id.id : value.id}
             className="chat__message"
           >
@@ -43,12 +61,12 @@ function Chat() {
                 hour12: false,
               })}
             </p>
-          </p>
+          </div>
         );
       } else {
         return (
-          <p
-            key={value.id.id ? value.id.id : value.id}
+          <div
+            key={value.id && value.id.id ? value.id.id : value.id}
             className="chat__message chat__reciever"
           >
             {value.body}
@@ -59,7 +77,7 @@ function Chat() {
                 hour12: false,
               })}
             </p>
-          </p>
+          </div>
         );
       }
     }
@@ -81,7 +99,17 @@ function Chat() {
             />
             <div className="chat__headerInfo">
               <h3>{data.chat.name}</h3>
-              <p>Visto à 2 semanas</p>
+              <p>
+                {data.chat.t &&
+                  new Date(Number(data.chat.t * 1000)).toLocaleTimeString(
+                    "pt-BR",
+                    {
+                      hour: "numeric",
+                      minute: "numeric",
+                      hour12: false,
+                    }
+                  )}
+              </p>
             </div>
 
             <div className="chat__headerRight">

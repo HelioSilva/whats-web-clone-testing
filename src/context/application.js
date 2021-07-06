@@ -71,6 +71,8 @@ const ContextApp = (props) => {
       mensagem: message,
       numbers: [formatNumber[0]],
     });
+
+    emitMessage(message, number);
   };
 
   const initialData = {
@@ -116,33 +118,34 @@ const ContextApp = (props) => {
     chat: {},
     sendMessage: sendMessage,
   });
+  //u
 
   // const providerValue = useMemo(
   //   () => () => ({ data, setData }),
   //   [data, setData]
   // );
 
-  // const emitMessage = useCallback(
-  //   (message) => {
-  //     const { mensagens, ...others } = data.chat;
-  //     const newMessage = {
-  //       id: "52546568656",
-  //       fromMe: true,
-  //       body: message,
-  //       t: new Date().getTime() / 1000,
-  //       type: "chat",
-  //     };
+  const emitMessage = useCallback(
+    (message, number) => {
+      const { mensagens, ...others } = data.chat;
+      const newMessage = {
+        id: number,
+        fromMe: true,
+        body: message,
+        t: new Date().getTime() / 1000,
+        type: "chat",
+      };
 
-  //     setData((prevState) => ({
-  //       ...prevState,
-  //       chat: {
-  //         ...others,
-  //         mensagens: [...prevState.chat.mensagens, newMessage],
-  //       },
-  //     }));
-  //   },
-  //   [data, setData]
-  // );
+      setData((prevState) => ({
+        ...prevState,
+        chat: {
+          ...others,
+          mensagens: [...prevState.chat.mensagens, newMessage],
+        },
+      }));
+    },
+    [data, setData]
+  );
 
   return (
     <AppContext.Provider value={{ data, setData }}>
