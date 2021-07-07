@@ -7,12 +7,13 @@ import InsertEmoticon from "@material-ui/icons/InsertEmoticon";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import Mic from "@material-ui/icons/Mic";
 import SendIcon from "@material-ui/icons/Send";
-import { useApp } from "./context/application";
+import { useApp, useFunc } from "./context/application";
 
 function Chat() {
   const messagesEndRef = useRef();
 
   const { data } = useApp();
+  const { downloadMedia } = useFunc();
   const [inputMessage, setInputMessage] = useState("");
 
   const scrollToBottom = () => {
@@ -20,6 +21,10 @@ function Chat() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  useEffect(() => {
+    console.log(messagesEndRef.current.offsetHeight);
+  });
 
   useEffect(() => {
     scrollToBottom();
@@ -32,7 +37,11 @@ function Chat() {
           <img
             className={"img"}
             loading={"lazy"}
-            src={`data:image/jpeg;base64,${value.body}`}
+            src={
+              !value.download
+                ? `data:image/jpeg;base64,${value.body}`
+                : `data:image/jpeg;base64,${value.downloaded}`
+            }
           />
           <p className="chat__timestamp">
             {new Date(Number(value.t * 1000)).toLocaleTimeString("pt-BR", {
@@ -41,6 +50,16 @@ function Chat() {
               hour12: false,
             })}
           </p>
+          {!value.download && (
+            <buttom
+              id="buttom"
+              onClick={() => {
+                downloadMedia(value);
+              }}
+            >
+              Download
+            </buttom>
+          )}
         </div>
       );
     }

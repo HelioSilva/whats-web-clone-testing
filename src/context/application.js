@@ -15,6 +15,37 @@ const FunContext = createContext();
 const ContextFun = (props) => {
   const { data, setData } = useApp();
 
+  const downloadMedia = async (message) => {
+    let running = data.chat.mensagens.map(async (element) => {
+      if (message === element) {
+        const resp = await api.post("/whats/decryptFile", {
+          message: { ...message },
+        });
+
+        element.download = true;
+        let buff = new Buffer(resp.data.buffer);
+        let base64data = buff.toString("base64");
+        element.downloaded = base64data;
+      }
+
+      return element;
+    });
+
+    Promise.all(running).then((newArray) => {
+      let chat = { data };
+
+      console.log(newArray);
+
+      chat.mensagens = [...newArray];
+      console.log(chat);
+
+      setData((prevState) => ({
+        ...prevState,
+        chat,
+      }));
+    });
+  };
+
   const alterChatActive = useCallback(
     async (idContact = "") => {
       let contact = {};
@@ -44,7 +75,7 @@ const ContextFun = (props) => {
   );
 
   return (
-    <FunContext.Provider value={{ alterChatActive }}>
+    <FunContext.Provider value={{ alterChatActive, downloadMedia }}>
       {props.children}
     </FunContext.Provider>
   );
