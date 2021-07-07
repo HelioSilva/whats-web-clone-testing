@@ -16,34 +16,26 @@ const ContextFun = (props) => {
   const { data, setData } = useApp();
 
   const downloadMedia = async (message) => {
-    let running = data.chat.mensagens.map(async (element) => {
-      if (message === element) {
-        const resp = await api.post("/whats/decryptFile", {
-          message: { ...message },
-        });
+    let indexFound = data.chat.mensagens.indexOf(message);
+    const newChat = { ...data.chat };
 
-        element.download = true;
-        let buff = new Buffer(resp.data.buffer);
-        let base64data = buff.toString("base64");
-        element.downloaded = base64data;
-      }
+    if (indexFound > 0) {
+      const resp = await api.post("/whats/decryptFile", {
+        message: { ...message },
+      });
 
-      return element;
-    });
+      if (resp.status != 200) return;
 
-    Promise.all(running).then((newArray) => {
-      let chat = { data };
-
-      console.log(newArray);
-
-      chat.mensagens = [...newArray];
-      console.log(chat);
+      let buff = new Buffer(resp.data.buffer);
+      let base64data = buff.toString("base64");
+      newChat.mensagens[indexFound].download = true;
+      newChat.mensagens[indexFound].downloaded = base64data;
 
       setData((prevState) => ({
         ...prevState,
-        chat,
+        chat: { ...newChat },
       }));
-    });
+    }
   };
 
   const alterChatActive = useCallback(

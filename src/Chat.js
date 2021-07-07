@@ -11,20 +11,35 @@ import { useApp, useFunc } from "./context/application";
 
 function Chat() {
   const messagesEndRef = useRef();
+  const listInnerRef = useRef();
+
+  const [scrollAuto, setScrollAuto] = useState(true);
 
   const { data } = useApp();
   const { downloadMedia } = useFunc();
   const [inputMessage, setInputMessage] = useState("");
 
   const scrollToBottom = () => {
-    if (messagesEndRef && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    //-----------------------
+    if (scrollAuto) {
+      if (messagesEndRef && messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({
+          block: "end",
+          behavior: "smooth",
+        });
+      }
     }
+    //-----------------
   };
 
-  useEffect(() => {
-    console.log(messagesEndRef.current.offsetHeight);
-  });
+  const onScroll = () => {
+    if (listInnerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
+      if (scrollTop + clientHeight === scrollHeight) {
+        setScrollAuto(true);
+      }
+    }
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -54,6 +69,7 @@ function Chat() {
             <buttom
               id="buttom"
               onClick={() => {
+                setScrollAuto(false);
                 downloadMedia(value);
               }}
             >
@@ -141,7 +157,11 @@ function Chat() {
             </div>
           </div>
 
-          <div className="chat__body">
+          <div
+            className="chat__body"
+            onScroll={() => onScroll()}
+            ref={listInnerRef}
+          >
             {data.chat.mensagens &&
               data.chat.mensagens.map((elem) => {
                 return viewMessage(elem, data.chat.name);
