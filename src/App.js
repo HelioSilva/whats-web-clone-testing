@@ -42,7 +42,9 @@ function App() {
     const running = novoArray.map((element) => {
       if (element.idContact == message.from) {
         element.ultimaMensagem = message.body;
-        element.unreadCount += 1;
+        if (element.idContact != chat.idContact) {
+          element.unreadCount += 1;
+        }
       }
     });
 

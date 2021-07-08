@@ -150,7 +150,6 @@ const ContextApp = (props) => {
 
   const emitMessage = useCallback(
     (message, number) => {
-      const { mensagens, ...others } = data.chat;
       const newMessage = {
         id: number,
         fromMe: true,
@@ -159,15 +158,17 @@ const ContextApp = (props) => {
         type: "chat",
       };
 
+      console.log("o bot está enviando um zap");
+
       setData((prevState) => ({
         ...prevState,
         chat: {
-          ...others,
+          ...prevState.chat,
           mensagens: [...prevState.chat.mensagens, newMessage],
         },
       }));
     },
-    [data, setData]
+    [data]
   );
 
   return (
